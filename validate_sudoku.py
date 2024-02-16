@@ -1,32 +1,25 @@
-import numpy as np
-
 # This class is a relic of the backtracking version.
 
-# It compares, in each unit (row, column and 3x3 square), every member to
+# It compares, in each unit (row, column or 3x3 square), every member to
 # the provided member.
 
 # With backtracking, I had to check for validity every time I added a member,
-# so it seemed like a sensible organisation. 
+# so this seemed like a sensible organisation. 
 # With constraint propagation, I don't need to check for validity because
-# a new member is added only when it's the only possible choice. We'll
-# have an invalid member only if the code is wrong.
+# a new member is added only when it's the only possible choice. We
+# have an invalid member only if the code is faulty.
 
-# It's not very efficient when used to validate a full board, because
-# we have to loop through every cell in a unit until we find a duplicate of
-# our input cell, to validate that unit. Meaning, we loop 9 times per unit
-# to validate a full board.
-
-# We could instead pass once over each row, each column and each square
+# It's inefficient when used to validate a full board, because
+# we have to loop 9 times through a unit to ensure there are no duplicates.
+# We could instead iterate once over each row, each column and each square
 # and put the result in a dictionary or list, then check for duplicates.
 
+import numpy as np
 
-# In these methods, we regularly have to check for cell != 0 because
-# the baseline member of my board is zero. 
 
 class Validation():
     def __init__(self, game):
         self.game = game
-        self.dic_square = {0 : [0, 1, 2], 3 : [3,4,5], 6 : [6,7,8]}
     
     def full_validate(self, strg):
         for row_index in range(0,9):
@@ -37,7 +30,7 @@ class Validation():
                     print("Unfortunately, there are duplicates:")
                     self.game.print_board()
                     exit()
-        print(f"\nThe {strg} is valid:")
+        print(f"\n\nThe {strg} is valid:\n")
 
     def row_validate(self, x, y):
         for index, cell in enumerate(np.nditer(self.game.board[x:x+1, :])):
@@ -51,17 +44,17 @@ class Validation():
                 return False
          return True
     
-    # Couldn't think of a mathematical way to efficiently navigate 3x3 squares
+    # Couldn't think of an efficient way to navigate 3x3 squares
     # then, so I wrote a dictionary that determines what rows and cols we are
     # in based on input coordinates.
-    # The method in "calculate_peers()" is somewhat more elegant.
-
+    # The calculate_peers method uses a different strategy.
     def square_validate(self, x, y):
-        for key in self.dic_square:
-            if x in self.dic_square[key]:
-                row_range = self.dic_square[key]
-            if y in self.dic_square[key]:
-                column_range = self.dic_square[key]
+        coordinate_to_square_unit = {0 : [0, 1, 2], 3 : [3,4,5], 6 : [6,7,8]}
+        for key in coordinate_to_square_unit:
+            if x in coordinate_to_square_unit[key]:
+                row_range = coordinate_to_square_unit[key]
+            if y in coordinate_to_square_unit[key]:
+                column_range = coordinate_to_square_unit[key]
 
         counter = 0
         for row in self.game.board[row_range]:
